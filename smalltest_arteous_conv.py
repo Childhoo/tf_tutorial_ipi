@@ -109,6 +109,12 @@ data = np.random.rand(300,32,32,3) #randomly generate data
 
 
 labels_gt = np.random.rand(300,32,32,1) # random labels for test artous_conv
+
+offset = np.mean(data, 0)
+scale = np.std(data, 0).clip(min=1)
+
+data = (data - offset) / scale
+
 """
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 """
@@ -129,7 +135,11 @@ with g1.as_default():
     input_img = tf.placeholder(tf.float32,shape=(None,32,32,3))
     labels =  tf.placeholder(tf.float32,shape=(None,32,32,1))
     
+
+    
+    
     tf.summary.image('labels_gt',labels)
+    tf.summary.histogram('labels_gt_histogram',labels)
     
     with tf.variable_scope("1st-layer"):
         output_1 = arteous_conv_relu(input_img,[5,5,3,10],[10])
@@ -141,6 +151,7 @@ with g1.as_default():
     with tf.variable_scope("3rd-layer"):
         output_3 = arteous_conv_relu(output_2,[5,5,20,1],[1])
         tf.summary.image('prediction',output_3)
+        tf.summary.histogram('prediction_histogram',output_3)
         
     print('shape of predicted result: {}'.format(get_tensor_shape(output_3)))
     
